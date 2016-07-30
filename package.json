@@ -4,7 +4,16 @@
   "scripts": {
     "start": "meteor run"
   },
+  "galaxy.meteor.com": {
+    "env": {
+      "MONGO_URL": "mongodb://payparkingonline:PayParkingOnline2016@aws-us-east-1-portal.21.dblayer.com:10471,aws-us-east-1-portal.22.dblayer.com:10477/admin"
+    }
+  },
   "dependencies": {
-    "meteor-node-stubs": "~0.2.0"
+    "leaflet": "^0.7.7",
+    "meteor-node-stubs": "~0.2.0",
+    "react": "^15.3.0",
+    "react-dom": "^15.3.0",
+    "react-leaflet": "^0.12.1"
   }
 }
