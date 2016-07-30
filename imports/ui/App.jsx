@@ -4,19 +4,51 @@ import { Map, Marker, Popup, TileLayer, Circle, GeoJson } from 'react-leaflet';
 
 // App component - represents the whole app
 export default class App extends Component {
-  componentDidMount() {
+
+  constructor() {
+    super();
+    this.state = {
+      position: [-41.4333496, 147.1263344],
+      geo_options: {
+        enableHighAccuracy: true,
+        maximumAge        : 30000,
+        timeout           : 27000
+      }
+    };
+    this.geo_success = this.geo_success.bind(this);
+  }
+
+  componentWillMount() {
+    this.requestCurrentPosition();
+  }
+
+  requestCurrentPosition(){
+    if (navigator.geolocation) {
+      // let geoloc = navigator.geolocation.getCurrentPosition(this.useGeoData);
+      let wpid = navigator.geolocation.watchPosition(this.geo_success,
+          this.geo_error, this.state.geo_options);
+    }
+  }
+
+  geo_success(position) {
+    // do_something(position.coords.latitude, position.coords.longitude);
+    let geoLocation = [position.coords.latitude, position.coords.longitude];
+    this.setState({position: geoLocation});
+  }
+
+  geo_error() {
+    alert("Sorry, no position available.");
   }
 
   render() {
-    const position = [-41.4333496, 147.1263344];
     return (
-        <Map center={position} zoom={13}>
+        <Map center={this.state.position} zoom={17}>
           <TileLayer
               url='https://api.mapbox.com/styles/v1/mapbox/streets-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoicGVtb2tlIiwiYSI6ImNpcjlrZDZlNDAxMmNnMm0zbWhiMDFiajMifQ.KHV_MiLfUu3xlsoBg8EbBg'
               attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
               detectRetina='true'
           />
-          <Marker position={position}
+          <Marker position={this.state.position}
                   color='red'>
             <Popup>
               <span>A pretty CSS3 popup.<br/>Easily customizable.</span>
