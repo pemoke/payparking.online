@@ -5,5 +5,5 @@ import { render } from 'react-dom';
 import App from '../imports/ui/App.jsx';
 
 Meteor.startup(() => {
-  render(<App />, document.getElementById('mapid'));
+  render(<App />, document.getElementById('map'));
 });
