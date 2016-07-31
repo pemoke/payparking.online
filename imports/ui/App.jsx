@@ -13,7 +13,7 @@ export default class App extends Component {
   constructor() {
     super();
     this.state = {
-      position: [-41.4333496, 147.1263344],
+      position: [-41.436535, 147.136629],
       geo_options: {
         enableHighAccuracy: true,
         maximumAge        : 30000,
@@ -34,7 +34,7 @@ export default class App extends Component {
   }
 
   componentWillMount() {
-    this.requestCurrentPosition();
+    // this.requestCurrentPosition();
     // this.serverRequest.abort();
   }
 
@@ -57,7 +57,7 @@ export default class App extends Component {
 
   render() {
     return (
-        <Map center={this.state.position} zoom={18}>
+        <Map center={this.state.position} zoom={17}>
           <TileLayer
               url={urlMapBox}
               attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
