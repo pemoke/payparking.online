@@ -1,6 +1,11 @@
-
 import React, { Component } from 'react';
 import { Map, Marker, Popup, TileLayer, Circle, GeoJson } from 'react-leaflet';
+import merge from 'geojson-merge'
+
+const urlParkingBays = 'http://lcc.launceston.opendata.arcgis.com/datasets/44d22a833b784789911fbd4c3667912f_2.geojson';
+const urlParkingMeters = 'http://lcc.launceston.opendata.arcgis.com/datasets/36ad7cc328a44970b68b8d953e23c380_0.geojson';
+const urlMapBox = 'https://api.mapbox.com/styles/v1/mapbox/streets-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoicGVtb2tlIiwiYSI6ImNpcjlrZDZlNDAxMmNnMm0zbWhiMDFiajMifQ.KHV_MiLfUu3xlsoBg8EbBg';
+
 
 // App component - represents the whole app
 export default class App extends Component {
@@ -13,19 +18,29 @@ export default class App extends Component {
         enableHighAccuracy: true,
         maximumAge        : 30000,
         timeout           : 27000
-      }
+      },
+      dataParkingBays: {}
     };
     this.geo_success = this.geo_success.bind(this);
   }
 
+  componentDidMount() {
+    this.serverRequest = $.get(urlParkingBays, function (result) {
+      console.log('result', result);
+      this.setState({
+        dataParkingBays: result
+      });
+    }.bind(this));
+  }
+
   componentWillMount() {
     this.requestCurrentPosition();
+    // this.serverRequest.abort();
   }
 
   requestCurrentPosition(){
     if (navigator.geolocation) {
-      // let geoloc = navigator.geolocation.getCurrentPosition(this.useGeoData);
-      let wpid = navigator.geolocation.watchPosition(this.geo_success,
+      let geoloc = navigator.geolocation.watchPosition(this.geo_success,
           this.geo_error, this.state.geo_options);
     }
   }
@@ -37,16 +52,18 @@ export default class App extends Component {
   }
 
   geo_error() {
-    alert("Sorry, no position available.");
+    console.log("Sorry, no position available.");
   }
 
   render() {
     return (
-        <Map center={this.state.position} zoom={17}>
+        <Map center={this.state.position} zoom={18}>
           <TileLayer
-              url='https://api.mapbox.com/styles/v1/mapbox/streets-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoicGVtb2tlIiwiYSI6ImNpcjlrZDZlNDAxMmNnMm0zbWhiMDFiajMifQ.KHV_MiLfUu3xlsoBg8EbBg'
+              url={urlMapBox}
               attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
               detectRetina='true'
+              maxZoom="20"
+              maxNativeZoom="18"
           />
           <Marker position={this.state.position}
                   color='red'>
@@ -54,72 +71,18 @@ export default class App extends Component {
               <span>A pretty CSS3 popup.<br/>Easily customizable.</span>
             </Popup>
           </Marker>
-          <GeoJson data={[
-            {
-              "type": "Feature",
-              "properties": {
-                "OBJECTID": 1,
-                "TIME": 3,
-                "LOCAL_ID": "PT14",
-                "TYPE": "dig",
-                "COMMENTS": "Multibay Meter (7)",
-                "EQNUM": 365906
-              },
-              "geometry": {
-                "type": "Point",
-                "coordinates": [
-                  147.13308694506316,
-                  -41.43901203437661
-                ]
+          <GeoJson
+              style={
+                {"color": "#D739FF"}
               }
-            },
-            {
-      "type": "Feature",
-      "properties": {
-        "OBJECTID": 1,
-        "COMMENTS": "1 St John St",
-        "Class": "Multibay Metered",
-        "ParkTime_mins": 180,
-        "SurveyDate": "2014-02-18T00:00:00.000Z",
-        "SignInfo": null,
-        "MeterNumber": null,
-        "BayNumber": null,
-        "DrawingNumber": 822,
-        "Mode": "active",
-        "ShapeSTArea": 12.2353515625,
-        "ShapeSTLength": 15.525986273355237
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              147.13563130153673,
-              -41.43291278794401
-            ],
-            [
-              147.13560169230223,
-              -41.43286854057252
-            ],
-            [
-              147.13562521085373,
-              -41.43285962689575
-            ],
-            [
-              147.13565547895305,
-              -41.432904859811806
-            ],
-            [
-              147.13563130153673,
-              -41.43291278794401
-            ]
-          ]
-        ]
-      }
-    }
-
-          ]}>
-
+              data={this.state.dataParkingBays}>
+            <Popup>
+              <span className="popup">
+                Parking Bay:<br/>
+                {JSON.toString(this)}<br/>
+                <button>Pay Parking</button>
+              </span>
+            </Popup>
           </GeoJson>
         </Map>
     );
