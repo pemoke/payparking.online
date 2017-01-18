@@ -10,6 +10,7 @@
     }
   },
   "dependencies": {
+    "babel-runtime": "^6.20.0",
     "geojson-merge": "^0.1.0",
     "leaflet": "^0.7.7",
     "meteor-node-stubs": "~0.2.0",
