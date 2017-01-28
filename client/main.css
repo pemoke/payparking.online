@@ -12,10 +12,56 @@ body {
 }
 
 html, body, #map {
-  height: 100%;
+  /*height: 100%;*/
 }
 
 .popup {
   z-index: 10000;
   position: relative;
+}
+
+
+/* CSS declarations go here */
+
+/* Universal border-box fix */
+:root {
+  box-sizing: border-box;
+}
+
+*,
+::before,
+::after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+
+/* Components */
+.row {
+  display: flex;
+}
+
+.box-meter {
+  width: 70%;
+  padding: 1em;
+  background-color: darkred;
+}
+
+.box-bay {
+  width: 30%;
+  padding: 1em;
+  background-color: aqua;
+}
+
+#map {
+  height: 100vh;
+}
+
+.footer {
+  padding: 1em;
+  background-color: black;
 }
