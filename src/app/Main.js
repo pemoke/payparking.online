@@ -27,37 +27,8 @@ const muiTheme = getMuiTheme({
 });
 
 class Main extends Component {
-  constructor(props, context) {
-    super(props, context);
-
-    this.state = {
-      open: false,
-      btnStartStopLabel: 'Start'
-    };
-  }
-
-  handleRequestClose = () => {
-    this.setState({
-      open: false,
-    });
-  }
-
-  handleTouchTap = () => {
-    this.setState({
-      open: true,
-      btnStartStopLabel: 'Stop'
-    });
-  }
 
   render() {
-    const standardActions = (
-      <FlatButton
-        label="Ok"
-        primary={true}
-        onTouchTap={this.handleRequestClose}
-      />
-    );
-
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
         <div style={styles.container}>
@@ -65,8 +36,6 @@ class Main extends Component {
           <h2>Mobile payment for parking</h2>
           <ParkingAllocation />
           <Timer />
-          <TimerActionButton
-              btnStartStopLabel={this.state.btnStartStopLabel} />
         </div>
       </MuiThemeProvider>
     );
@@ -94,12 +63,48 @@ class ParkingAllocation extends Component {
 }
 
 class Timer extends Component {
+  state = {
+    timerIsRunning: false,
+    timer: ''
+  };
+
+  handleTimer = moment.duration(1, "seconds").timer({loop: true}, () => {
+    let t = this.state.timer--;
+    this.setState({
+      timer: t
+    });
+    console.log(this.state);
+  // Callback
+  });
+
+  handleTimerStart = () => {
+    this.handleTimer.start();
+    console.log(this.handleTimer.isStopped());
+    this.setState({
+      timerIsRunning: true,
+      timer: Date.now()
+    })
+  };
+
+  handleTimerStop = () => {
+    this.handleTimer.stop();
+    console.log(this.handleTimer.isStopped());
+    this.setState({
+      timerIsRunning: false,
+      timer: ''
+    })
+  };
+
+  handleMMchange = (e) => {
+    let mm = parseInt(e.target.value) * 60;
+    this.setState({
+      timer: mm
+    })
+  };
+
   componentDidMount() {
     // this.forceUpdateInterval = setInterval(() => this.forceUpdate(), 50);
-    var timer = moment.duration(5, "seconds").timer({loop: true}, function() {
-      // Callback
-      console.log('timer');
-    });
+    let state = this.state;
 
   }
 
@@ -108,6 +113,7 @@ class Timer extends Component {
   }
 
   handleStartClick = () => {
+    console.log(this.id);
     this.props.onStartClick(this.props.id);
   };
 
@@ -116,10 +122,7 @@ class Timer extends Component {
   };
 
   render() {
-    // const elapsedString = helpers.renderElapsedString(
-    //   this.props.elapsed, this.props.runningSince
-    // );
-    console.log(moment.isDate('10/10/2017'));
+    console.log(this.state);
     return (
       <div>
         <p>elapsedString</p>
@@ -127,18 +130,27 @@ class Timer extends Component {
           hintText="HH"
           maxLength="2"
           style={{width: '2em'}}
+          type="number"
         />
         &nbsp;:&nbsp;
         <TextField
           hintText="MM"
           maxLength="2"
           style={{width: '2em'}}
+          type="number"
+          onChange={this.handleMMchange}
         />
         &nbsp;:&nbsp;
         <TextField
           hintText="SS"
           maxLength="2"
           style={{width: '2em'}}
+          type="number"
+        />
+        <TimerActionButton
+          timerIsRunning={this.state.timerIsRunning}
+          onTimerStart={this.handleTimerStart}
+          onTimerStop={this.handleTimerStop}
         />
       </div>
     )
@@ -152,7 +164,7 @@ class TimerActionButton extends React.Component {
           <RaisedButton
               label='Stop'
               secondary={true}
-              onTouchTap={this.handleTouchTap}
+              onTouchTap={this.props.onTimerStop}
           />
       )
     } else {
@@ -160,7 +172,7 @@ class TimerActionButton extends React.Component {
           <RaisedButton
               label='Start'
               secondary={true}
-              onTouchTap={this.handleTouchTap}
+              onTouchTap={this.props.onTimerStart}
           />
       )
     }
