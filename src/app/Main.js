@@ -3,8 +3,6 @@
  * which incorporates components provided by Material-UI.
  */
 import React, {Component} from 'react';
-import moment from 'moment';
-import 'moment-timer';
 import RaisedButton from 'material-ui/RaisedButton';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
@@ -12,6 +10,7 @@ import {deepOrange500} from 'material-ui/styles/colors';
 import FlatButton from 'material-ui/FlatButton';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import ParkingMeters from 'json!./Parking_Meters.geojson';
 
 const styles = {
   container: {
@@ -45,6 +44,13 @@ class Main extends Component {
 export default Main;
 
 class ParkingAllocation extends Component {
+  constructor(props) {
+    super(props);
+    // let parkingMeters = require('!json!./Parking_Meters.geojson');
+    console.log(JSON.stringify(ParkingMeters));
+  }
+
+
   render() {
     return (
       <div>
@@ -65,61 +71,44 @@ class ParkingAllocation extends Component {
 class Timer extends Component {
   state = {
     timerIsRunning: false,
-    timer: ''
+    timer: 0
   };
 
-  handleTimer = moment.duration(1, "seconds").timer({loop: true}, () => {
-    let t = this.state.timer--;
-    this.setState({
-      timer: t
-    });
-    console.log(this.state);
-  // Callback
-  });
+  tick = () => {
+    this.setState({timer: this.state.timer - 1});
+    console.log(this.state.timer);
+    if (this.state.timer <=0) {
+      clearInterval(this.interval);
+    }
+  };
 
   handleTimerStart = () => {
-    this.handleTimer.start();
-    console.log(this.handleTimer.isStopped());
+    console.log(this.state.timer);
     this.setState({
       timerIsRunning: true,
-      timer: Date.now()
-    })
+    });
+    this.interval = setInterval(this.tick, 1000);
   };
 
   handleTimerStop = () => {
-    this.handleTimer.stop();
-    console.log(this.handleTimer.isStopped());
     this.setState({
       timerIsRunning: false,
-      timer: ''
-    })
+    });
+    clearInterval(this.interval);
   };
 
-  handleMMchange = (e) => {
-    let mm = parseInt(e.target.value) * 60;
+  handleTimerChange = (e) => {
+    let seconds = parseInt(e.target.value) * 60;
     this.setState({
-      timer: mm
+      timer: seconds
     })
   };
 
   componentDidMount() {
-    // this.forceUpdateInterval = setInterval(() => this.forceUpdate(), 50);
-    let state = this.state;
-
   }
 
   componentWillUnmount() {
-    clearInterval(this.forceUpdateInterval);
   }
-
-  handleStartClick = () => {
-    console.log(this.id);
-    this.props.onStartClick(this.props.id);
-  };
-
-  handleStopClick = () => {
-    this.props.onStopClick(this.props.id);
-  };
 
   render() {
     console.log(this.state);
@@ -131,14 +120,17 @@ class Timer extends Component {
           maxLength="2"
           style={{width: '2em'}}
           type="number"
+          value={('0' + Math.floor(this.state.timer / 60 / 60 % 60)).slice(-2)}
         />
         &nbsp;:&nbsp;
         <TextField
+          name="minutes"
           hintText="MM"
           maxLength="2"
           style={{width: '2em'}}
           type="number"
-          onChange={this.handleMMchange}
+          value={('0' + Math.floor(this.state.timer / 60 % 60)).slice(-2)}
+          onChange={this.handleTimerChange}
         />
         &nbsp;:&nbsp;
         <TextField
@@ -146,6 +138,7 @@ class Timer extends Component {
           maxLength="2"
           style={{width: '2em'}}
           type="number"
+          value={('0' + this.state.timer % 60).slice(-2)}
         />
         <TimerActionButton
           timerIsRunning={this.state.timerIsRunning}

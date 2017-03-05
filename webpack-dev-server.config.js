@@ -42,6 +42,10 @@ const config = {
         loaders: ['babel-loader'],
         exclude: [nodeModulesPath],
       },
+      {
+        test: /\.json$/,
+        loader: "json-loader",
+      }
     ],
   },
 };
