@@ -1,5 +1,6 @@
-.meteor
 .idea
-node_modules/
+.meteor
+npm-debug.log
 build/
+node_modules/
 semantic/
