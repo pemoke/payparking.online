@@ -11,10 +11,30 @@ class PayParkingDashboard extends React.Component {
 }
 
 class ParkingAllocation extends React.Component {
+
+  componentDidMount() {
+    this.loadParkingBaysFromServer();
+  }
+
+  loadParkingBaysFromServer = (meter) => {
+    client.getParkingBays((bays) => (
+        console.log(bays)
+      ),
+        meter || '*'
+    );
+  };
+
+  handleParkingMeterChange = (e) => {
+    this.loadParkingBaysFromServer(e.target.value);
+  };
+
   render() {
     return (
         <form>
-          <input type="text" />
+          <input
+              type="text"
+              onChange={this.handleParkingMeterChange}
+          />
           <input type="text" />
         </form>
     )
@@ -126,7 +146,7 @@ class TimerForm extends React.Component {
               name="hours"
               min="0"
               max="12"
-              defaultValue={this.props.timerClock.HH}
+              value={this.props.timerClock.HH}
               onChange={this.props.handleTimerChange}
           />
           <input
@@ -134,7 +154,7 @@ class TimerForm extends React.Component {
               name="minutes"
               min="0"
               max="59"
-              defaultValue={this.props.timerClock.MM}
+              value={this.props.timerClock.MM}
               onChange={this.props.handleTimerChange}
           />
           <input
@@ -142,7 +162,7 @@ class TimerForm extends React.Component {
               name="seconds"
               min="0"
               max="59"
-              defaultValue={this.props.timerClock.SS}
+              value={this.props.timerClock.SS}
               onChange={this.props.handleTimerChange}
           />
           <TimerButton
