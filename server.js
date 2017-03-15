@@ -25,8 +25,11 @@ app.use((req, res, next) => {
 
 app.get('/api/meters', (req, res) => {
   fs.readFile(DATA_FILE_METERES, (err, data) => {
+    let obj = JSON.parse(data);
+    let meterIDs = _.sortBy(_.map(obj.features, 'properties.local_id'));
+
     res.setHeader('Cache-Control', 'no-cache');
-    res.json(JSON.parse(data));
+    res.json(meterIDs);
   });
 });
 

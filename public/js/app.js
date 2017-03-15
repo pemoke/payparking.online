@@ -13,8 +13,15 @@ class PayParkingDashboard extends React.Component {
 class ParkingAllocation extends React.Component {
 
   componentDidMount() {
+    this.loadParkingMetersFromServer();
     this.loadParkingBaysFromServer();
   }
+
+  loadParkingMetersFromServer = () => {
+    client.getParkingMeters((success) => {
+      console.log('getParkingMeters', success);
+    })
+  };
 
   loadParkingBaysFromServer = (meter) => {
     client.getParkingBays((bays) => (
