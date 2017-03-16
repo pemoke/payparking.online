@@ -38,6 +38,7 @@ app.get('/api/bays/:meter', (req, res) => {
     let obj = JSON.parse(data);
     let filteredBays = _.filter(obj.features,
         { properties: { meternumber: req.params.meter }});
+    filteredBays = _.sortBy(filteredBays, 'properties.baynumber');
 
     res.setHeader('Cache-Control', 'no-cache');
     res.json(filteredBays);

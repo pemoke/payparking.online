@@ -1,18 +1,29 @@
 import React from 'react';
 import Client from './Client';
+
 import logo from './logo.svg';
 import './App.css';
+
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import AutoComplete from 'material-ui/AutoComplete';
+import TextField from 'material-ui/TextField';
+import injectTapEventPlugin from 'react-tap-event-plugin';
+// Needed for onTouchTap
+// http://stackoverflow.com/a/34015469/988941
+injectTapEventPlugin();
 
 class App extends React.Component {
   render() {
     return (
-      <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
+      <MuiThemeProvider>
+        <div className="App">
+          <div className="App-header">
+            <img src={logo} className="App-logo" alt="logo" />
+            <h2>PayParking.online</h2>
+          </div>
+          <PayParkingDashboard />
         </div>
-        <PayParkingDashboard />
-      </div>
+      </MuiThemeProvider>
     );
   }
 }
@@ -30,6 +41,13 @@ class PayParkingDashboard extends React.Component {
 }
 
 class ParkingAllocation extends React.Component {
+  state = {
+    parkingMeters: [],
+    selectedParkingMeter: '',
+    parkingBays: [],
+    parkingBayNumbers: [],
+    selectedParkingBay: 0
+  };
 
   componentDidMount() {
     this.loadParkingMetersFromServer();
@@ -39,29 +57,73 @@ class ParkingAllocation extends React.Component {
   loadParkingMetersFromServer = () => {
     Client.getParkingMeters((success) => {
       console.log('getParkingMeters', success);
+      this.setState({
+        parkingMeters: success
+      });
     })
   };
 
   loadParkingBaysFromServer = (meter) => {
-    Client.getParkingBays((bays) => (
-            console.log(bays)
-        ),
-        meter || '*'
-    );
+    if (this.state.parkingMeters.indexOf(meter) > -1) {
+      Client.getParkingBays((success) => {
+            console.log(success);
+            let parkingBayNumbers = success.map((obj) => {
+              return obj.properties.baynumber;
+            });
+
+            this.setState({
+              parkingBays: success,
+              parkingBayNumbers: parkingBayNumbers
+            });
+          },
+          meter || '*'
+      );
+    }
   };
 
-  handleParkingMeterChange = (e) => {
-    this.loadParkingBaysFromServer(e.target.value);
+  handleMeterUpdateInput = (searchText) => {
+    let parkingMeterNumber = searchText.toUpperCase();
+    this.loadParkingBaysFromServer(parkingMeterNumber);
+    this.setState({
+      selectedParkingMeter: parkingMeterNumber
+    }, this.getCoordinates);
+  };
+
+  handleBayUpdateInput = (event, newValue) => {
+    console.log(newValue);
+    this.setState({
+      selectedParkingBay: parseInt(newValue, 10)
+    }, this.getCoordinates);
+  };
+
+  getCoordinates = () => {
+    if (this.state.selectedParkingMeter && this.state.selectedParkingBay) {
+      let coordinates = this.state.parkingBays
+          .filter(parkingBay =>
+          parkingBay.properties.baynumber === this.state.selectedParkingBay);
+      console.log('coordinates', coordinates);
+    } else {
+      console.log('error');
+    }
+
   };
 
   render() {
     return (
         <form>
-          <input
-              type="text"
-              onChange={this.handleParkingMeterChange}
+          <AutoComplete
+              hintText="Parking Meter"
+              floatingLabelText="Parking Meter"
+              searchText={this.state.selectedParkingMeter}
+              dataSource={this.state.parkingMeters}
+              onUpdateInput={this.handleMeterUpdateInput}
           />
-          <input type="text" />
+          <span>&nbsp;&mdash;&nbsp;</span>
+          <TextField
+              hintText="Parking Bay No."
+              floatingLabelText="Parking Bay No."
+              onChange={this.handleBayUpdateInput}
+          />
         </form>
     )
   }
