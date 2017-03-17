@@ -4,6 +4,8 @@ import Client from './Client';
 import logo from './logo.svg';
 import './App.css';
 
+import {GoogleMapLoader, GoogleMap, Marker} from "react-google-maps";
+
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import AutoComplete from 'material-ui/AutoComplete';
 import TextField from 'material-ui/TextField';
@@ -30,11 +32,18 @@ class App extends React.Component {
 
 class PayParkingDashboard extends React.Component {
   render() {
+    const location = {
+      lat: -41.4333817,
+      lng: 147.1263772
+    };
+
     return (
         <div>
           <ParkingAllocation />
           <Timer />
-          <Map />
+          <div style={{width:'100%', height:300, background:'red'}}>
+            <Map center={location} />
+          </div>
         </div>
     )
   }
@@ -308,10 +317,22 @@ class TimerButton extends React.Component {
 
 class Map extends React.Component {
   render() {
-    return (
-        <div>
-          Map
-        </div>
+    const mapContainer = <div style={{height: '100%', width: '100%'}}/>
+
+     return (
+        <GoogleMapLoader
+          containerElement={ mapContainer }
+          googleMapElement={
+            <GoogleMap
+              defaultZoom={15}
+              defaultCenter={this.props.center}
+              options={{streetViewControl: false, mapTypeControl: false}}>
+              <Marker
+                position={{lat: -41.436213, lng: 147.137192}}
+              />
+            </GoogleMap>
+          }
+        />
     )
   }
 }
