@@ -11,7 +11,12 @@ class Parking extends React.Component {
     selectedParkingMeter: '',
     parkingBays: [],
     parkingBayNumbers: [],
-    selectedParkingBay: 0
+    selectedParkingBay: 0,
+    geometry: {},
+    location: {
+      lat: -41.4333817,
+      lng: 147.1263772
+    }
   };
 
   componentDidMount() {
@@ -21,7 +26,6 @@ class Parking extends React.Component {
 
   loadParkingMetersFromServer = () => {
     Client.getParkingMeters((success) => {
-      console.log('getParkingMeters', success);
       this.setState({
         parkingMeters: success
       });
@@ -31,15 +35,15 @@ class Parking extends React.Component {
   loadParkingBaysFromServer = (meter) => {
     if (this.state.parkingMeters.indexOf(meter) > -1) {
       Client.getParkingBays((success) => {
-            console.log(success);
             let parkingBayNumbers = success.map((obj) => {
               return obj.properties.baynumber;
             });
 
             this.setState({
               parkingBays: success,
-              parkingBayNumbers: parkingBayNumbers
-            });
+              parkingBayNumbers: parkingBayNumbers,
+              selectedParkingMeter: meter
+            }, this.getCoordinates);
           },
           meter || '*'
       );
@@ -51,11 +55,10 @@ class Parking extends React.Component {
     this.loadParkingBaysFromServer(parkingMeterNumber);
     this.setState({
       selectedParkingMeter: parkingMeterNumber
-    }, this.getCoordinates);
+    });
   };
 
   handleBayUpdateInput = (event, newValue) => {
-    console.log(newValue);
     this.setState({
       selectedParkingBay: parseInt(newValue, 10)
     }, this.getCoordinates);
@@ -63,22 +66,35 @@ class Parking extends React.Component {
 
   getCoordinates = () => {
     if (this.state.selectedParkingMeter && this.state.selectedParkingBay) {
-      let coordinates = this.state.parkingBays
+      let bayObject = this.state.parkingBays
           .filter(parkingBay =>
           parkingBay.properties.baynumber === this.state.selectedParkingBay);
-      console.log('coordinates', coordinates);
-    } else {
-      console.log('error');
-    }
 
+      if (bayObject.length > 0) {
+        let bayObjectGeometry = bayObject[0].geometry;
+
+        this.setState({
+          location: {
+            lat: bayObjectGeometry.coordinates[0][0][1],
+            lng: bayObjectGeometry.coordinates[0][0][0]
+          },
+          geometry: bayObjectGeometry
+        });
+      } else {
+        // no such parking bay
+        this.setState({
+          geometry: {}
+        })
+      }
+    } else {
+      // no such parking meter
+      this.setState({
+        geometry: {}
+      })
+    }
   };
 
   render() {
-    const location = {
-      lat: -41.4333817,
-      lng: 147.1263772
-    };
-
     return (
         <div>
           <form>
@@ -96,12 +112,28 @@ class Parking extends React.Component {
                 onChange={this.handleBayUpdateInput}
             />
           </form>
-
-          <Timer />
-
+          <Timer geometry={this.state.selectedParkingMeter} />
+          <DisplayInfo
+              selectedParkingMeter={this.state.selectedParkingMeter}
+              location={this.state.location}
+          />
           <div style={{width: '100%', height: 300, background: 'lightGrey'}}>
-            <Map center={location}/>
+            <Map
+                center={this.state.location}
+                geometry={this.state.geometry}
+            />
           </div>
+        </div>
+    )
+  }
+}
+
+class DisplayInfo extends React.Component {
+  render() {
+    return (
+        <div>
+          <p>Selected Parking Meter: {this.props.selectedParkingMeter}</p>
+          <p>Location: {this.props.location.lat}, {this.props.location.lng}</p>
         </div>
     )
   }
