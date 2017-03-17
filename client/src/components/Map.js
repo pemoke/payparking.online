@@ -1,12 +1,26 @@
 import React from 'react';
-import {GoogleMapLoader, GoogleMap, Marker} from "react-google-maps";
+import {GoogleMapLoader, GoogleMap, Polygon} from "react-google-maps";
 
 class Map extends React.Component {
   render() {
     const mapContainer = <div style={{height: '100%', width: '100%'}}/>;
+    const mapTypeId = [
+        'roadmap',
+        'satellite',
+        'hybrid',
+        'terrain'
+    ];
+
     let obj = this.props.geometry;
 
     if (!isEmpty(obj)) {
+      let polygon = obj.coordinates[0].map((el) => {
+        return {
+          lng: el[0],
+          lat: el[1]
+        }
+      });
+
       return (
           <GoogleMapLoader
               containerElement={ mapContainer }
@@ -14,9 +28,13 @@ class Map extends React.Component {
                 <GoogleMap
                     zoom={19}
                     center={this.props.center}
-                    options={{streetViewControl: false, mapTypeControl: false}}>
-                  <Marker
-                      position={this.props.center}
+                    options={{
+                      streetViewControl: false,
+                      mapTypeControl: false,
+                      mapTypeId: mapTypeId[0]}}
+                >
+                  <Polygon
+                      paths={polygon}
                   />
                 </GoogleMap>
               }
@@ -33,7 +51,11 @@ class Map extends React.Component {
                       lat: -41.4333817,
                       lng: 147.145
                     }}
-                    options={{streetViewControl: false, mapTypeControl: false}}>
+                    options={{
+                      streetViewControl: false,
+                      mapTypeControl: false,
+                      mapTypeId: mapTypeId[0]}}
+                >
                 </GoogleMap>
               }
           />
