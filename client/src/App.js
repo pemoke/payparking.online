@@ -3,10 +3,6 @@ import Parking from './components/Parking';
 
 import './App.css';
 import AppBar from 'material-ui/AppBar';
-
-import {Card} from 'material-ui/Card';
-import IconButton from 'material-ui/IconButton';
-import IconMyLocation from 'material-ui/svg-icons/maps/my-location';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 // Needed for onTouchTap
@@ -18,18 +14,6 @@ const styles = {
     cursor: 'pointer',
   },
 };
-
-class Location extends React.Component {
-  render() {
-    return (
-        <div>
-          <IconButton>
-            <IconMyLocation />
-          </IconButton>
-        </div>
-    )
-  }
-}
 
 class App extends React.Component {
   handleTouchTap = () => {
@@ -43,11 +27,9 @@ class App extends React.Component {
             <AppBar
                 title={<span style={styles.title}>PayParking.online</span>}
                 onTitleTouchTap={this.handleTouchTap}
-                iconElementRight={<Location />}
+                iconElementLeft={<span></span>}
             />
-            <Card>
-                <Parking />
-            </Card>
+            <Parking />
           </div>
         </MuiThemeProvider>
     );

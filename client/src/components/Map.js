@@ -20,7 +20,6 @@ class Map extends React.Component {
           lat: el[1]
         }
       });
-
       return (
           <GoogleMapLoader
               containerElement={ mapContainer }
@@ -48,8 +47,8 @@ class Map extends React.Component {
                 <GoogleMap
                     zoom={13}
                     center={{
-                      lat: -41.4333817,
-                      lng: 147.145
+                      lat: this.props.center.lat,
+                      lng: this.props.center.lng
                     }}
                     options={{
                       streetViewControl: false,

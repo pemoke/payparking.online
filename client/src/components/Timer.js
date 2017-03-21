@@ -1,4 +1,6 @@
 import React from 'react';
+import TextField from 'material-ui/TextField';
+import RaisedButton from 'material-ui/RaisedButton';
 
 class Timer extends React.Component {
   state = {
@@ -39,32 +41,34 @@ class Timer extends React.Component {
     clearInterval(this.interval);
   };
 
-  handleTimerChange = (e) => {
-    if (e.target.name === 'hours') {
-      this.setState({
-        timer: {
-          hours: parseInt(e.target.value, 10),
-          minutes: this.state.timer.minutes,
-          seconds: this.state.timer.seconds
-        }
-      })
-    } else if (e.target.name === 'minutes') {
-      this.setState({
-        timer: {
-          hours: this.state.timer.hours,
-          minutes: parseInt(e.target.value, 10),
-          seconds: this.state.timer.seconds
-        }
-      })
-    } else if (e.target.name === 'seconds') {
-      this.setState({
-        timer: {
-          hours: this.state.timer.hours,
-          minutes: this.state.timer.minutes,
-          seconds: parseInt(e.target.value, 10)
-        }
-      })
-    }
+  handleTimerHoursChange = (obj, val) => {
+    this.setState({
+      timer: {
+        hours: parseInt(val, 10),
+        minutes: this.state.timer.minutes,
+        seconds: this.state.timer.seconds
+      }
+    })
+  };
+
+  handleTimerMinutesChange = (obj, val) => {
+    this.setState({
+      timer: {
+        hours: this.state.timer.hours,
+        minutes: parseInt(val, 10),
+        seconds: this.state.timer.seconds
+      }
+    })
+  };
+
+  handleTimerSecondsChange = (obj, val) => {
+    this.setState({
+      timer: {
+        hours: this.state.timer.hours,
+        minutes: this.state.timer.minutes,
+        seconds: parseInt(val, 10)
+      }
+    })
   };
 
   render() {
@@ -87,7 +91,9 @@ class Timer extends React.Component {
           <TimerForm
               timerIsRunning={this.state.timerIsRunning}
               handleTimerStart={this.handleTimerStart}
-              handleTimerChange={this.handleTimerChange}
+              handleTimerHoursChange={this.handleTimerHoursChange}
+              handleTimerMinutesChange={this.handleTimerMinutesChange}
+              handleTimerSecondsChange={this.handleTimerSecondsChange}
               timerClock={timerClock}
           />
       );
@@ -100,30 +106,41 @@ class TimerForm extends React.Component {
   render() {
     return (
         <div>
-          <input
-              type="number"
-              name="hours"
-              min="0"
-              max="12"
-              value={this.props.timerClock.HH}
-              onChange={this.props.handleTimerChange}
-          />
-          <input
-              type="number"
-              name="minutes"
-              min="0"
-              max="59"
-              value={this.props.timerClock.MM}
-              onChange={this.props.handleTimerChange}
-          />
-          <input
-              type="number"
-              name="seconds"
-              min="0"
-              max="59"
-              value={this.props.timerClock.SS}
-              onChange={this.props.handleTimerChange}
-          />
+          <div style={{display: 'flex', margin: '0 20px'}}>
+            <TextField
+                style={{flex: '33.3%'}}
+                hintText="hours"
+                min="0"
+                max="12"
+                floatingLabelText="hours"
+                fullWidth={true}
+                value={this.props.timerClock.HH}
+                onChange={this.props.handleTimerHoursChange}
+                type="number"
+            />
+            <TextField
+                style={{flex: '33.3%', marginLeft: '20px'}}
+                hintText="minutes"
+                min="0"
+                max="59"
+                floatingLabelText="minutes"
+                fullWidth={true}
+                value={this.props.timerClock.MM}
+                onChange={this.props.handleTimerMinutesChange}
+                type="number"
+            />
+            <TextField
+                style={{flex: '33.3%', marginLeft: '20px'}}
+                hintText="seconds"
+                min="0"
+                max="59"
+                floatingLabelText="seconds"
+                fullWidth={true}
+                value={this.props.timerClock.SS}
+                onChange={this.props.handleTimerSecondsChange}
+                type="number"
+            />
+          </div>
           <TimerButton
               timerIsRunning={this.props.timerIsRunning}
               onTimerStart={this.props.handleTimerStart}
@@ -137,14 +154,18 @@ class TimerDisplay extends React.Component {
   render() {
     return (
         <div>
-          {this.props.timerClock.HH}
-          :
-          {this.props.timerClock.MM}
-          :
-          {this.props.timerClock.SS}
+          <div style={{display: 'flex', justifyContent: 'center'}}>
+            <h1 style={{margin: 0, fontFamily: 'Roboto'}}>
+              {this.props.timerClock.HH}
+              :
+              {this.props.timerClock.MM}
+              :
+              {this.props.timerClock.SS}
+            </h1>
+          </div>
           <TimerButton
-              timerIsRunning={this.props.timerIsRunning}
-              onTimerStop={this.props.handleTimerStop}
+            timerIsRunning={this.props.timerIsRunning}
+            onTimerStop={this.props.handleTimerStop}
           />
         </div>
     )
@@ -155,22 +176,22 @@ class TimerButton extends React.Component {
   render() {
     if (this.props.timerIsRunning) {
       return (
-          <div>
-            <button
+          <div style={{display: 'flex', justifyContent: 'center', margin: '20px 0'}}>
+            <RaisedButton
+                label="Stop"
+                secondary={true}
                 onClick={this.props.onTimerStop}
-            >
-              Stop
-            </button>
+            />
           </div>
       )
     } else {
       return (
-          <div>
-            <button
+          <div style={{display: 'flex', justifyContent: 'center', margin: '20px 0'}}>
+            <RaisedButton
+                label="Start"
+                primary={true}
                 onClick={this.props.onTimerStart}
-            >
-              Start
-            </button>
+            />
           </div>
       )
     }

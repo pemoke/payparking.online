@@ -4,6 +4,7 @@ import Timer from './Timer';
 import Client from '../Client';
 import AutoComplete from 'material-ui/AutoComplete';
 import TextField from 'material-ui/TextField';
+import {Card, CardText} from 'material-ui/Card';
 
 class Parking extends React.Component {
   state = {
@@ -13,10 +14,11 @@ class Parking extends React.Component {
     parkingBayNumbers: [],
     selectedParkingBay: 0,
     geometry: {},
-    location: {
+    center: {
       lat: -41.4333817,
       lng: 147.1263772
-    }
+    },
+    parkingMeterObj: {}
   };
 
   componentDidMount() {
@@ -71,55 +73,100 @@ class Parking extends React.Component {
           parkingBay.properties.baynumber === this.state.selectedParkingBay);
 
       if (bayObject.length > 0) {
-        let bayObjectGeometry = bayObject[0].geometry;
-
         this.setState({
-          location: {
-            lat: bayObjectGeometry.coordinates[0][0][1],
-            lng: bayObjectGeometry.coordinates[0][0][0]
+          parkingMeterObj: bayObject[0],
+          center: {
+            lat: bayObject[0].geometry.coordinates[0][0][1],
+            lng: bayObject[0].geometry.coordinates[0][0][0]
           },
-          geometry: bayObjectGeometry
+          geometry: bayObject[0].geometry
         });
       } else {
         // no such parking bay
         this.setState({
+          parkingMeterObj: {},
           geometry: {}
         })
       }
     } else {
       // no such parking meter
       this.setState({
+        parkingMeterObj: {},
         geometry: {}
       })
     }
   };
 
   render() {
+    const styles = {
+      parkingMeter: {
+        root: {
+        },
+        container: {
+          display: 'flex',
+          margin: '10px 20px',
+          left : {
+            flex: '66.67%'
+          },
+          right: {
+            flex: '33.33%',
+            marginLeft: '21px'
+          }
+        },
+        textField: {
+          fontSize: 21
+        },
+        list: {
+          maxHeight: 200,
+          fontSize: 21,
+        }
+      },
+      bayNo: {
+        fontSize: 21
+      }
+    };
+
     return (
         <div>
-          <form>
-            <AutoComplete
-                hintText="Parking Meter"
-                floatingLabelText="Parking Meter"
-                searchText={this.state.selectedParkingMeter}
-                dataSource={this.state.parkingMeters}
-                onUpdateInput={this.handleMeterUpdateInput}
+          <div style={styles.parkingMeter.container}>
+            <div style={styles.parkingMeter.container.left}>
+              <AutoComplete
+                  hintText="Parking Meter"
+                  floatingLabelText="Parking Meter"
+                  style={styles.parkingMeter.root}
+                  fullWidth={true}
+                  textFieldStyle={styles.parkingMeter.textField}
+                  listStyle={styles.parkingMeter.list}
+                  menuStyle={styles.parkingMeter.menu}
+                  searchText={this.state.selectedParkingMeter}
+                  dataSource={this.state.parkingMeters}
+                  onUpdateInput={this.handleMeterUpdateInput}
+              />
+            </div>
+            <div style={styles.parkingMeter.container.right}>
+              <TextField
+                  hintText="Bay No."
+                  floatingLabelText="Bay No."
+                  style={styles.bayNo}
+                  fullWidth={true}
+                  textareaStyle={styles.bayNo}
+                  onChange={this.handleBayUpdateInput}
+                  type="number"
+              />
+            </div>
+          </div>
+          <div style={{margin: '0 80px'}}>
+            <Timer geometry={this.state.selectedParkingMeter} />
+          </div>
+          <div>
+            <DisplayParkingMeterInfo
+                parkingMeterObj={this.state.parkingMeterObj}
+                location={this.state.center}
             />
-            <span>&nbsp;&mdash;&nbsp;</span>
-            <TextField
-                hintText="Parking Bay No."
-                floatingLabelText="Parking Bay No."
-                onChange={this.handleBayUpdateInput}
-            />
-          </form>
-          <Timer geometry={this.state.selectedParkingMeter} />
-          <DisplayInfo
-              selectedParkingMeter={this.state.selectedParkingMeter}
-              location={this.state.location}
-          />
+          </div>
           <div style={{width: '100%', height: 300, background: 'lightGrey'}}>
             <Map
-                center={this.state.location}
+                center={this.state.center}
                 geometry={this.state.geometry}
             />
           </div>
@@ -128,14 +175,25 @@ class Parking extends React.Component {
   }
 }
 
-class DisplayInfo extends React.Component {
+class DisplayParkingMeterInfo extends React.Component {
   render() {
-    return (
-        <div>
-          <p>Selected Parking Meter: {this.props.selectedParkingMeter}</p>
-          <p>Location: {this.props.location.lat}, {this.props.location.lng}</p>
-        </div>
-    )
+    if (this.props.parkingMeterObj.properties) {
+      return (
+          <Card style={{fontSize: '11px', color: 'grey', textAlign: 'center'}}>
+            <CardText>
+              <strong>Meter info:</strong>
+              <br />
+              Time limit: {this.props.parkingMeterObj.properties.parktime_mins} min.
+              <br />
+              {this.props.parkingMeterObj.properties.signinfo}
+              <br />
+              {this.props.parkingMeterObj.properties.comments}
+            </CardText>
+          </Card>
+      )
+    } else {
+      return null
+    }
   }
 }
 
