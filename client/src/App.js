@@ -26,7 +26,6 @@ class App extends React.Component {
           <div className="App">
             <AppBar
                 title={<span style={styles.title}>PayParking.online</span>}
-                onTitleTouchTap={this.handleTouchTap}
                 iconElementLeft={<span></span>}
             />
             <Parking />

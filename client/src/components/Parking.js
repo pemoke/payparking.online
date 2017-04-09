@@ -131,7 +131,7 @@ class Parking extends React.Component {
           <div style={styles.parkingMeter.container}>
             <div style={styles.parkingMeter.container.left}>
               <AutoComplete
-                  hintText="Parking Meter"
+                  hintText="e.g.: BR01"
                   floatingLabelText="Parking Meter"
                   style={styles.parkingMeter.root}
                   fullWidth={true}
@@ -145,7 +145,7 @@ class Parking extends React.Component {
             </div>
             <div style={styles.parkingMeter.container.right}>
               <TextField
-                  hintText="Bay No."
+                  hintText="e.g.: 2"
                   floatingLabelText="Bay No."
                   style={styles.bayNo}
                   fullWidth={true}
